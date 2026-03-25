@@ -81,7 +81,7 @@ const PlatformFunctions* Backend::GetFunctions() const {
 }
 
 MaybeError Backend::EnsureDXC() {
-#if DAWN_USE_BUILT_DXC
+// #if DAWN_USE_BUILT_DXC
     // If components are already loaded, return early
     if (mDxcLibrary != nullptr) {
         // Since all components are assigned atomically, if one is loaded, all should be loaded
@@ -113,9 +113,9 @@ MaybeError Backend::EnsureDXC() {
     mDxcValidator = std::move(dxcValidator);
 
     return {};
-#else
-    DAWN_UNREACHABLE();
-#endif
+// #else
+//     DAWN_UNREACHABLE();
+// #endif
 }
 
 ComPtr<IDxcLibrary> Backend::GetDxcLibrary() const {

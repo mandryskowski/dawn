@@ -100,11 +100,11 @@ std::unique_ptr<dawn::platform::JobHandle> WorkerTaskPool::PostWorkerJob(PostWor
 bool Platform::IsFeatureEnabled(Features feature) {
     switch (feature) {
         case Features::kWebGPUUseDXC:
-#ifdef DAWN_USE_BUILT_DXC
+// #ifdef DAWN_USE_BUILT_DXC
             return true;
-#else
-            return false;
-#endif
+// #else
+//             return false;
+// #endif
         case Features::kWebGPUEnableRangeAnalysisForRobustness:
             return true;
         case Features::kWebGPUUseSpirv14:

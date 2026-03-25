@@ -108,7 +108,7 @@ void PlatformFunctions::LoadPIXRuntime(std::span<const std::string> searchPaths)
     }
 }
 
-#if DAWN_USE_BUILT_DXC
+// #if DAWN_USE_BUILT_DXC
 MaybeError PlatformFunctions::EnsureDXCLibraries(std::span<const std::string> searchPaths) {
     // TODO(dawn:766)
     // Statically linked with dxcompiler.lib in UWP
@@ -142,5 +142,5 @@ MaybeError PlatformFunctions::EnsureDXCLibraries(std::span<const std::string> se
     mDXILLib = std::move(dxilLib);
     return {};
 }
-#endif  // DAWN_USE_BUILT_DXC
+// #endif  // DAWN_USE_BUILT_DXC
 }  // namespace dawn::native::d3d12
