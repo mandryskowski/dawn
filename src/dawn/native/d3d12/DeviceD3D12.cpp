@@ -91,6 +91,8 @@ ResultOrError<Ref<Device>> Device::Create(AdapterBase* adapter,
 }
 
 MaybeError Device::Initialize(const UnpackedPtr<DeviceDescriptor>& descriptor) {
+    fprintf(stderr, "DEBUG: Device::Initialize called\n");
+    fflush(stderr);
     mD3d12Device = ToBackend(GetPhysicalDevice())->GetDevice();
 
     // Querying for the ID3D12DebugDevice interface will tell us whether the debug layer
@@ -185,6 +187,8 @@ MaybeError Device::Initialize(const UnpackedPtr<DeviceDescriptor>& descriptor) {
 
     // Set up shader profile for DXC.
     if (IsToggleEnabled(Toggle::UseDXC)) {
+        fprintf(stderr, "DEBUG: UseDXC toggle enabled in Device::Initialize. \n");
+        fflush(stderr);
         uint32_t appliedShaderModel =
             ToBackend(GetPhysicalDevice())->GetAppliedShaderModelUnderToggles(GetTogglesState());
 
