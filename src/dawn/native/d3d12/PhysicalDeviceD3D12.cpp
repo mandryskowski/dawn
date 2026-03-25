@@ -200,7 +200,7 @@ void PhysicalDevice::InitializeSupportedFeaturesImpl() {
         EnableFeature(Feature::ChromiumExperimentalTimestampQueryInsidePasses);
     }
 
-#if defined(DAWN_USE_BUILT_DXC)
+// #if defined(DAWN_USE_BUILT_DXC)
     // ShaderF16 features require DXC version being 1.4 or higher, shader model supporting 6.2 or
     // higher, and native supporting F16 shader ops.
     if (mDeviceInfo.highestSupportedShaderModel >= 62 && mDeviceInfo.supportsNative16BitShaderOps) {
@@ -216,7 +216,7 @@ void PhysicalDevice::InitializeSupportedFeaturesImpl() {
     if (mDeviceInfo.highestSupportedShaderModel >= 66) {
         EnableFeature(Feature::ChromiumExperimentalSubgroupSizeControl);
     }
-#endif
+// #endif
 
     D3D12_FEATURE_DATA_FORMAT_SUPPORT bgra8unormFormatInfo = {};
     bgra8unormFormatInfo.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -610,17 +610,17 @@ void PhysicalDevice::SetupBackendAdapterToggles(dawn::platform::Platform* platfo
     // and loaded according to device's UseDXC toggle during device creation, and the creation would
     // just fail if required compiler is not available. This is to avoid expensive loading of DLLs
     // that we will not use immediately (or at all).
-#ifdef DAWN_USE_BUILT_DXC
+// #ifdef DAWN_USE_BUILT_DXC
     if (GetDeviceInfo().highestSupportedShaderModel < 60) {
         // If shader model < 6.0, though, we must use FXC.
         adapterToggles->ForceSet(Toggle::UseDXC, false);
     }
     const bool useDxc = platform->IsFeatureEnabled(dawn::platform::Features::kWebGPUUseDXC);
     adapterToggles->Default(Toggle::UseDXC, useDxc);
-#else
-    adapterToggles->ForceSet(Toggle::UseDXC, false);
-    adapterToggles->Default(Toggle::UseDXC, false);
-#endif
+// #else
+//     adapterToggles->ForceSet(Toggle::UseDXC, false);
+//     adapterToggles->Default(Toggle::UseDXC, false);
+// #endif
 
     const uint32_t deviceId = GetDeviceId();
     const uint32_t vendorId = GetVendorId();
@@ -663,11 +663,11 @@ void PhysicalDevice::SetupBackendAdapterToggles(dawn::platform::Platform* platfo
 
 void PhysicalDevice::SetupBackendDeviceToggles(dawn::platform::Platform* platform,
                                                TogglesState* deviceToggles) const {
-#ifdef DAWN_USE_BUILT_DXC
+// #ifdef DAWN_USE_BUILT_DXC
     const bool dxcAvailable = true;
-#else
-    const bool dxcAvailable = false;
-#endif
+// #else
+//     const bool dxcAvailable = false;
+// #endif
     const bool useResourceHeapTier2 = (GetDeviceInfo().resourceHeapTier >= 2);
     deviceToggles->Default(Toggle::UseD3D12ResourceHeapTier2, useResourceHeapTier2);
     deviceToggles->Default(Toggle::UseD3D12RenderPass, GetDeviceInfo().supportsRenderPass);
