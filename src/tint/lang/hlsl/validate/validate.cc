@@ -26,6 +26,16 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "src/tint/lang/hlsl/validate/validate.h"
+#if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <Windows.h>
+#include <Unknwn.h>
+#include <wrl/client.h>
+template <typename T>
+using CComPtr = Microsoft::WRL::ComPtr<T>;
+#endif
 
 #include <string>
 #include <vector>
@@ -35,15 +45,15 @@
 #include "src/tint/utils/macros/defer.h"
 #include "src/tint/utils/text/string.h"
 
-#ifdef _WIN32
+#if 0
 #include <Windows.h>
 #include <atlbase.h>
 #include <d3dcommon.h>
 #include <d3dcompiler.h>
 #include <wrl.h>
-#else
+#elif 0
 #include <dlfcn.h>
-#endif  // _WIN32
+#endif  // 0
 
 // dxc headers
 TINT_BEGIN_DISABLE_ALL_WARNINGS();
@@ -236,95 +246,15 @@ Result ValidateUsingDXC(const std::string& dxc_path,
     return result;
 }
 
-#ifdef _WIN32
 Result ValidateUsingFXC(const std::string& fxc_path,
                         const std::string& source,
                         const std::string& entry_point_name,
                         core::ir::Function::PipelineStage pipeline_stage) {
     Result result;
-
-    if (entry_point_name.empty()) {
-        result.output = "No entrypoint found";
-        result.failed = true;
-        return result;
-    }
-
-    HMODULE fxcLib = LoadLibraryA(fxc_path.c_str());
-    if (fxcLib == nullptr) {
-        result.output = "Couldn't load FXC";
-        result.failed = true;
-        return result;
-    }
-    TINT_DEFER({ FreeLibrary(fxcLib); });
-
-    auto* d3dCompile = reinterpret_cast<pD3DCompile>(
-        reinterpret_cast<void*>(GetProcAddress(fxcLib, "D3DCompile")));
-    auto* d3dDisassemble = reinterpret_cast<pD3DDisassemble>(
-        reinterpret_cast<void*>(GetProcAddress(fxcLib, "D3DDisassemble")));
-
-    if (d3dCompile == nullptr) {
-        result.output = "Couldn't load D3DCompile from FXC";
-        result.failed = true;
-        return result;
-    }
-    if (d3dDisassemble == nullptr) {
-        result.output = "Couldn't load D3DDisassemble from FXC";
-        result.failed = true;
-        return result;
-    }
-
-    const char* profile = "";
-    switch (pipeline_stage) {
-        case core::ir::Function::PipelineStage::kUndefined:
-            result.output = "Invalid PipelineStage";
-            result.failed = true;
-            return result;
-        case core::ir::Function::PipelineStage::kVertex:
-            profile = "vs_5_1";
-            break;
-        case core::ir::Function::PipelineStage::kFragment:
-            profile = "ps_5_1";
-            break;
-        case core::ir::Function::PipelineStage::kCompute:
-            profile = "cs_5_1";
-            break;
-    }
-
-    // Match Dawn's compile flags
-    // See dawn\src\dawn_native\d3d12\RenderPipelineD3D12.cpp
-    UINT compileFlags = D3DCOMPILE_OPTIMIZATION_LEVEL0 | D3DCOMPILE_PACK_MATRIX_ROW_MAJOR |
-                        D3DCOMPILE_IEEE_STRICTNESS;
-
-    CComPtr<ID3DBlob> compiledShader;
-    CComPtr<ID3DBlob> errors;
-    HRESULT res = d3dCompile(source.c_str(),            // pSrcData
-                             source.length(),           // SrcDataSize
-                             nullptr,                   // pSourceName
-                             nullptr,                   // pDefines
-                             nullptr,                   // pInclude
-                             entry_point_name.c_str(),  // pEntrypoint
-                             profile,                   // pTarget
-                             compileFlags,              // Flags1
-                             0,                         // Flags2
-                             &compiledShader,           // ppCode
-                             &errors);                  // ppErrorMsgs
-    if (FAILED(res)) {
-        result.output = static_cast<char*>(errors->GetBufferPointer());
-        result.failed = true;
-        return result;
-    } else {
-        CComPtr<ID3DBlob> disassembly;
-        res = d3dDisassemble(compiledShader->GetBufferPointer(), compiledShader->GetBufferSize(), 0,
-                             "", &disassembly);
-        if (FAILED(res)) {
-            result.output = "Failed to disassemble shader";
-        } else {
-            result.output = static_cast<char*>(disassembly->GetBufferPointer());
-        }
-    }
-
+    // Return a failure indicating this feature is disabled in this cross-compile build
+    result.output = "FXC validation is not supported in this build configuration.";
+    result.failed = true;
     return result;
 }
-#endif  // _WIN32
 
 }  // namespace tint::hlsl::validate
