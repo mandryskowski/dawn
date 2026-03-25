@@ -1,0 +1,35 @@
+name: Sync and Rebase Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Rebase onto Upstream
+        run: |
+          git remote add upstream https://github.com/google/dawn.git
+          git fetch upstream main
+          
+          if git rebase upstream/main; then
+            echo "Rebase successful, pushing to origin..."
+            git push origin main --force-with-lease
+          else
+            echo "Conflict detected! Aborting rebase."
+            git rebase --abort
+            exit 1
+          fi
